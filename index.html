@@ -3,285 +3,337 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>专属控制台 - 吮吸增强版</title>
+    <title>心动设备 MCP 中继控制台</title>
     <style>
-        :root {
-            --primary-color: #ff85a2;
-            --bg-color: #fff0f3;
-        }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: #4a4a4a;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            padding: 15px;
             margin: 0;
         }
         .card {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 12px rgba(255, 133, 162, 0.1);
+            background: #fff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
         h2 {
-            color: var(--primary-color);
             margin-top: 0;
-            font-size: 1.2rem;
-            border-bottom: 2px solid var(--bg-color);
-            padding-bottom: 8px;
+            font-size: 16px;
+            color: #4a5568;
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 6px;
         }
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ffe3e8;
-            border-radius: 8px;
-            box-sizing: border-box;
+        .form-group {
             margin-bottom: 10px;
         }
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
+        label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 4px;
+            color: #718096;
+        }
+        input[type="text"], input[type="number"] {
             width: 100%;
+            padding: 8px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
             font-weight: bold;
-            font-size: 1rem;
             cursor: pointer;
             transition: background 0.2s;
         }
-        button:active {
-            background-color: #ff6b8b;
-        }
-        .btn-stop {
-            background-color: #ff4d4d;
-        }
-        .btn-stop:active {
-            background-color: #e60000;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin-top: 10px;
-        }
-        .btn-mode {
-            background-color: #fff;
-            color: var(--primary-color);
-            border: 2px solid var(--primary-color);
-            padding: 8px;
-            font-size: 0.9rem;
-            border-radius: 6px;
-        }
-        .btn-mode.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        input[type="range"] {
-            width: 100%;
+        .btn-primary { background-color: #4299e1; color: white; }
+        .btn-success { background-color: #48bb78; color: white; }
+        .btn-danger { background-color: #f56565; color: white; grid-column: span 2; }
+        .btn-action { background-color: #ed64a6; color: white; }
+        .slider-group {
             margin: 15px 0;
-            accent-color: var(--primary-color);
+        }
+        .slider-group input {
+            width: 100%;
         }
         #log {
-            background: #2b2b2b;
-            color: #70c930;
-            padding: 12px;
+            background-color: #1a202c;
+            color: #a0aec0;
+            padding: 10px;
             border-radius: 8px;
-            height: 120px;
+            height: 180px;
             overflow-y: auto;
             font-family: monospace;
-            font-size: 0.85rem;
+            font-size: 12px;
+            white-space: pre-wrap;
         }
-        audio {
-            width: 100%;
-            margin-top: 10px;
+        .status-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            background: #e2e8f0;
         }
+        .online { background-color: #c6f6d5; color: #22543d; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2>1. 同步服务器设置</h2>
-        <input type="text" id="serverUrl" placeholder="请输入你的 Railway 地址 (https://...)" />
-        <button id="btnConnectServer">开始接收 AI 指令</button>
-    </div>
-
-    <div class="card">
-        <h2>2. 蓝牙连接 (HS141B)</h2>
-        <button id="btnConnectBle">扫描并连接啾啾雀</button>
-        <button id="btnStop" class="btn-stop" style="margin-top:10px;">紧急停止</button>
-    </div>
-
-    <div class="card">
-        <h2>3. 吮吸模式手动测试</h2>
-        <label>滑动调节强度 (0% - 100%)：<span id="intensityVal">0%</span></label>
-        <input type="range" id="rangeIntensity" min="0" max="100" value="0">
+        <h2>📡 设备与中继配置</h2>
+        <div class="form-group">
+            <label>设备名过滤 (例如: HS141B)</label>
+            <input type="text" id="deviceName" value="HS141B">
+        </div>
+        <div class="form-group">
+            <label>服务 UUID</label>
+            <input type="text" id="serviceUuid" value="FFE0">
+        </div>
+        <div class="form-group">
+            <label>特征 UUID (写指令)</label>
+            <input type="text" id="charUuid" value="FFE1">
+        </div>
+        <div class="form-group">
+            <label>MCP 轮询地址</label>
+            <input type="text" id="mcpUrl" value="http://127.0.0.1:3000/toy-next">
+        </div>
+        <div class="form-group">
+            <label>自动续命间隔 (毫秒)</label>
+            <input type="number" id="keepAliveInterval" value="5000">
+        </div>
         
-        <label>选择自动波形模式：</label>
-        <div class="grid">
-            <button class="btn-mode" onclick="setSuctionMode(1)">模式 1</button>
-            <button class="btn-mode" onclick="setSuctionMode(2)">模式 2</button>
-            <button class="btn-mode" onclick="setSuctionMode(3)">模式 3</button>
-            <button class="btn-mode" onclick="setSuctionMode(4)">模式 4</button>
-            <button class="btn-mode" onclick="setSuctionMode(5)">模式 5</button>
-            <button class="btn-mode" onclick="setSuctionMode(6)">模式 6</button>
-            <button class="btn-mode" onclick="setSuctionMode(7)">模式 7</button>
-            <button class="btn-mode" onclick="setSuctionMode(8)">模式 8</button>
+        <div class="btn-grid">
+            <button class="btn-primary" onclick="connectBluetooth()">1. 连接蓝牙设备</button>
+            <button class="btn-success" onclick="startMcpPolling()">2. 开启 MCP 轮询</button>
+            <button class="btn-danger" onclick="stopAll()">🛑 停止所有功能 (断开/重置)</button>
         </div>
     </div>
 
     <div class="card">
-        <h2>4. 系统保活音频</h2>
-        <audio controls loop id="bgAudio">
-            <source src="https://actions.google.com/sounds/v1/ambiences/ambient_hum_air_conditioner.ogg" type="audio/ogg">
-        </audio>
+        <h2>🎮 手动调试与测试</h2>
+        <div class="slider-group">
+            <label>吮吸强度等级: <span id="suckVal">0</span></label>
+            <input type="range" id="suckSlider" min="0" max="5" value="0" oninput="updateSuck(this.value)">
+        </div>
+        <div class="form-group">
+            <label>自定义十六进制指令 (例如: 55040101AA)</label>
+            <input type="text" id="hexCommand" value="">
+        </div>
+        <div class="btn-grid" style="grid-template-columns: 1fr;">
+            <button class="btn-action" onclick="sendCustomHex()">发送自定义测试指令</button>
+        </div>
     </div>
 
     <div class="card">
-        <h2>5. 运行日志区域</h2>
+        <h2>📋 运行日志 <span id="pollStatus" class="status-tag">轮询未开启</span></h2>
         <div id="log">等待操作...</div>
     </div>
 
-    <script>
-        let bleDevice = null;
-        let bleCharacteristic = null;
-        let currentMode = 1;
-        let currentIntensity = 0;
-        let serverInterval = null;
+    <audio id="bgAudio" loop src="https://img.heliar.top/file/1772516513350_30min-osbvow_2.mp4" style="display:none;"></audio>
 
-        function log(text) {
-            const time = new Date().toLocaleTimeString();
-            const logDiv = document.getElementById('log');
-            logDiv.innerHTML += `[${time}] ${text}<br/>`;
-            logDiv.scrollTop = logDiv.scrollHeight;
+<script>
+    let bluetoothDevice = null;
+    let bleCharacteristic = null;
+    let mcpTimer = null;
+    let keepAliveTimer = null;
+    let isPolling = false;
+
+    // 格式化 UUID 为 Web Bluetooth 标准格式
+    function formatUuid(uuid) {
+        uuid = uuid.toLowerCase();
+        if (uuid.length === 4) {
+            return `0000${uuid}-0000-1000-8000-00805f9b34fb`;
         }
+        return uuid;
+    }
 
-        // 蓝牙连接逻辑
-        document.getElementById('btnConnectBle').addEventListener('click', async () => {
-            log("正在扫描蓝牙设备...");
-            try {
-                bleDevice = await navigator.bluetooth.requestDevice({
-                    acceptAllDevices: true,
-                    optionalServices: ['0000fee9', '0000f00d'] 
-                });
-                
-                log(`发现设备: ${bleDevice.name}，正在连接...`);
-                const server = await bleDevice.gatt.connect();
-                
-                // 尝试通用控制服务
-                let service;
-                try {
-                    service = await server.getPrimaryService('0000fee9');
-                } catch(e) {
-                    service = await server.getPrimaryService('0000f00d');
-                }
-                
-                const characteristics = await service.getCharacteristics();
-                bleCharacteristic = characteristics[0]; 
-                
-                log("啾啾雀蓝牙连接成功！吸吸模式就绪。");
-                // 激活音频保活
-                document.getElementById('bgAudio').play().catch(()=>{});
-            } catch (error) {
-                log("蓝牙连接失败: " + error.message);
+    function log(message, isInfo = true) {
+        if (!isInfo) return; // 静默模式下，普通轮询跳过不打印
+        const logArea = document.getElementById('log');
+        const time = new Date().toLocaleTimeString();
+        logArea.innerText += `[${time}] ${message}\n`;
+        logArea.scrollTop = logArea.scrollHeight;
+    }
+
+    // 1. 连接蓝牙
+    async function connectBluetooth() {
+        const nameFilter = document.getElementById('deviceName').value.trim();
+        const serviceUuidInput = document.getElementById('serviceUuid').value.trim();
+        const charUuidInput = document.getElementById('charUuid').value.trim();
+
+        const serviceUuid = formatUuid(serviceUuidInput);
+        const charUuid = formatUuid(charUuidInput);
+
+        try {
+            log("正在请求寻找蓝牙设备...", true);
+            const options = {
+                filters: [{ namePrefix: nameFilter }],
+                optionalServices: [serviceUuid]
+            };
+            
+            if(!nameFilter) {
+                options.acceptAllDevices = true;
             }
-        });
 
-        // 核心吸吮指令构造
-        async function sendSuctionCmd(mode, intensity) {
-            if (!bleCharacteristic) return;
-            try {
-                // 针对该系列吸吮玩具的通用复合控制协议：通常参数1控制模式类型，参数2控制马达上限
-                // 这里构造8字节标准控制流，专门针对吸吮腔特征码进行映射
-                let uint8 = new Uint8Array(8);
-                uint8[0] = 0x55; // 起始头
-                uint8[1] = 0x04; // 吸吮功能标识码
-                uint8[2] = mode & 0xFF; // 8个波形模式
-                uint8[3] = Math.round((intensity / 100) * 255); // 映射至0-255强度
-                uint8[4] = 0x00;
-                uint8[5] = 0x00;
-                // 校验和
-                let checksum = 0;
-                for(let i=0; i<6; i++) checksum += uint8[i];
-                uint8[6] = checksum & 0xFF;
-                uint8[7] = 0xAA; // 结束符
+            bluetoothDevice = await navigator.bluetooth.requestDevice(options);
+            log(`已选择设备: ${bluetoothDevice.name}，正在连接...`, true);
 
-                await bleCharacteristic.writeValue(uint8);
-            } catch (e) {
-                // 降级兼容指令（部分硬件采用3字节短控制流）
-                try {
-                    let shortUint8 = new Uint8Array([0x03, mode, Math.round((intensity / 100) * 100)]);
-                    await bleCharacteristic.writeValue(shortUint8);
-                } catch(err) {
-                    log("指令发送失败，请确保后台没有其它App抢占设备");
-                }
+            const server = await bluetoothDevice.gatt.connect();
+            log("GATT 服务已连接，正在获取主服务...", true);
+
+            const service = await server.getPrimaryService(serviceUuid);
+            bleCharacteristic = await service.getCharacteristic(charUuid);
+            
+            log("🎉 蓝牙连接并握手成功！特征通道就绪。", true);
+            
+            // 触发音频保活
+            startAudioKeepAlive();
+            // 开启硬件续命机制
+            startDeviceKeepAlive();
+
+        } catch (error) {
+            log(`❌ 蓝牙连接失败: ${error.message}`, true);
+        }
+    }
+
+    // 2. 发送十六进制数据到蓝牙
+    async function sendHex(hexString) {
+        if (!bleCharacteristic) {
+            log("⚠️ 蓝牙未连接，无法发送指令", true);
+            return;
+        }
+        try {
+            hexString = hexString.replace(/\s+/g, '');
+            if (hexString.length % 2 !== 0) {
+                log("⚠️ 错误：十六进制指令长度必须为偶数", true);
+                return;
             }
+            const typedArray = new Uint8Array(hexString.match(/[\da-f]{2}/gi).map(h => parseInt(h, 16)));
+            await bleCharacteristic.writeValue(typedArray);
+            return true;
+        } catch (error) {
+            log(`❌ 指令发送失败: ${error.message}`, true);
+            return false;
         }
+    }
 
-        // 手动模式控制
-        function setSuctionMode(m) {
-            currentMode = m;
-            document.querySelectorAll('.btn-mode').forEach((b, idx) => {
-                if(idx === m-1) b.classList.add('active');
-                else b.classList.remove('active');
-            });
-            log(`手动切换至：模式 ${m}`);
-            sendSuctionCmd(currentMode, currentIntensity);
-        }
+    // 3. MCP 轮询机制 (静默运行)
+    function startMcpPolling() {
+        if (isPolling) return;
+        const url = document.getElementById('mcpUrl').value.trim();
+        isPolling = true;
+        document.getElementById('pollStatus').innerText = "轮询中...";
+        document.getElementById('pollStatus').classList.add('online');
+        log("🚀 开始高频轮询 MCP 服务器 (300ms 间隔)...", true);
 
-        document.getElementById('rangeIntensity').addEventListener('input', (e) => {
-            currentIntensity = e.target.value;
-            document.getElementById('intensityVal').innerText = currentIntensity + "%";
-            sendSuctionCmd(currentMode, currentIntensity);
-        });
+        mcpTimer = setInterval(async () => {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP 状态码 ${response.status}`);
+                const data = await response.json();
 
-        document.getElementById('btnStop').addEventListener('click', () => {
-            currentIntensity = 0;
-            document.getElementById('rangeIntensity').value = 0;
-            document.getElementById('intensityVal').innerText = "0%";
-            sendSuctionCmd(1, 0);
-            log("🛑 已紧急停止所有吸吮动作");
-        });
-
-        // Railway 同步逻辑
-        document.getElementById('btnConnectServer').addEventListener('click', () => {
-            let url = document.getElementById('serverUrl').value.trim();
-            if(!url) { alert("请输入有效的链接哦！"); return; }
-            if(url.endsWith('/')) url = url.slice(0, -1);
-
-            if(serverInterval) clearInterval(serverInterval);
-            log("已开启 Railway 联动，正在同步沈翊的指令...");
-
-            serverInterval = setInterval(async () => {
-                try {
-                    const res = await fetch(`${url}/get_command`);
-                    const data = await res.json();
-                    if(data && data.command) {
-                        // 动态解析糯叽叽下发的强度值 (通常0-5或0-100)
-                        let rawVal = parseInt(data.command);
-                        if(!isNaN(rawVal)) {
-                            // 自动映射到玩具吸吮强度
-                            let mappedIntensity = rawVal;
-                            if(rawVal <= 5 && rawVal > 0) mappedIntensity = rawVal * 20; 
-                            
-                            if(mappedIntensity === 0) {
-                                currentIntensity = 0;
-                                sendSuctionCmd(1, 0);
-                            } else {
-                                currentIntensity = mappedIntensity;
-                                // 默认使用用户当前选中的模式或基础自动模式
-                                sendSuctionCmd(currentMode, currentIntensity);
-                            }
-                            document.getElementById('rangeIntensity').value = currentIntensity;
-                            document.getElementById('intensityVal').innerText = currentIntensity + "%";
-                            log(`同步成功！沈翊让你当前吸吮强度变为: ${currentIntensity}%`);
-                        }
+                // 核心解析逻辑
+                if (data && data.command) {
+                    const action = data.command.action;
+                    const value = data.command.value;
+                    
+                    log(`📥 收到有效指令 -> action: ${action}, value: ${value}`, true);
+                    
+                    // 解析具体指令（此处以常见的 55 开头动作码举例，你可以自由根据真实协议调整）
+                    if (action === "suck") {
+                        document.getElementById('suckSlider').value = value;
+                        document.getElementById('suckVal').innerText = value;
+                        // 假设 0 等于停止，其余是对应挡位，转换成 Hex 写入
+                        let hexCmd = "550201" + parseInt(value).toString(16).padStart(2, '0'); 
+                        sendHex(hexCmd);
+                    } else if (action === "custom_hex") {
+                        sendHex(value);
                     }
-                } catch(e) {
-                    // 静默错误，防止日志刷屏
                 }
-            }, 1500);
+                // 如果返回 { "command": null } 则静默跳过，不输出任何日志
+            } catch (error) {
+                // 出错时打印日志
+                log(`❌ MCP 轮询出错: ${error.message}`, true);
+            }
+        }, 300);
+    }
+
+    // 4. 设备专属续命机制 (KeepAlive 心跳)
+    function startDeviceKeepAlive() {
+        if (keepAliveTimer) clearInterval(keepAliveTimer);
+        const interval = parseInt(document.getElementById('keepAliveInterval').value);
+        
+        keepAliveTimer = setInterval(() => {
+            if (bleCharacteristic) {
+                // 常见的保活心跳包常为 00 或特定指令，这里发送一个静默维持连接包
+                // 小宝贝可以根据玩具的协议改成它的续命指令
+                sendHex("00"); 
+            }
+        }, interval);
+    }
+
+    // 5. 无声音频保活机制
+    function startAudioKeepAlive() {
+        const audio = document.getElementById('bgAudio');
+        audio.play().then(() => {
+            log("🎵 背景无声音频保活已成功启动", true);
+        }).catch(err => {
+            log("⚠️ 浏览器阻止了音频自动播放，需要手动戳一下屏幕", true);
         });
-    </script>
+    }
+
+    // 手动界面滑块
+    function updateSuck(val) {
+        document.getElementById('suckVal').innerText = val;
+        // 转换成对应的十六进制指令测试
+        let hexCmd = "550201" + parseInt(val).toString(16).padStart(2, '0');
+        log(`🎛️ 手动调节吮吸至 ${val} 档，发送 Hex: ${hexCmd}`, true);
+        sendHex(hexCmd);
+    }
+
+    function sendCustomHex() {
+        const hex = document.getElementById('hexCommand').value.trim();
+        if(hex) {
+            log(`✍️ 手动发送自定义 Hex: ${hex}`, true);
+            sendHex(hex);
+        }
+    }
+
+    // 6. 停止所有功能
+    function stopAll() {
+        // 清除定时器
+        if (mcpTimer) clearInterval(mcpTimer);
+        if (keepAliveTimer) clearInterval(keepAliveTimer);
+        isPolling = false;
+        
+        document.getElementById('pollStatus').innerText = "已停止";
+        document.getElementById('pollStatus').classList.remove('online');
+
+        // 停止音频
+        const audio = document.getElementById('bgAudio');
+        audio.pause();
+
+        // 断开蓝牙
+        if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+            bluetoothDevice.gatt.disconnect();
+            log("🔌 蓝牙已主动断开连接", true);
+        }
+        
+        log("🛑 已重置并停止所有中继和保活进程。", true);
+    }
+</script>
 </body>
 </html>
